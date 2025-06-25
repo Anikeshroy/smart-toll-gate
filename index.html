@@ -1,40 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Smart Toll Gate</title>
-  <link rel="stylesheet" href="./style.css">
+  <title>Smart Toll Gate Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzo7FzBtyVyr62coqmYqbet31NCjf4GXQ",
+      authDomain: "smarttollgate.firebaseapp.com",
+      databaseURL: "https://smarttollgate-default-rtdb.firebaseio.com",
+      projectId: "smarttollgate",
+      storageBucket: "smarttollgate.appspot.com",
+      messagingSenderId: "138583248503",
+      appId: "1:138583248503:web:9369be4f0f27e7d7e20072"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Realtime Listener
+    const tollLogsRef = ref(database, 'toll_logs/');
+    onValue(tollLogsRef, (snapshot) => {
+      const data = snapshot.val();
+      let logContainer = document.getElementById('log');
+      logContainer.innerHTML = '';
+
+      // Show latest 10 entries in reverse order
+      const keys = Object.keys(data).reverse().slice(0, 10);
+      keys.forEach(key => {
+        const entry = data[key];
+        const html = `<div class="log-entry">
+          🚗 Vehicle #${entry.vehicle_number}<br>
+          ⏱️ Time: ${entry.time}<br>
+          📍 Location: ${entry.location}
+        </div><hr>`;
+        logContainer.innerHTML += html;
+      });
+    });
+  </script>
 </head>
 <body>
-  <h1>🚗 Smart Toll Gate</h1>
-
-  <div class="status-box">
-    <h2 id="status">Loading...</h2>
-    <p>Vehicle Count: <span id="count">0</span></p>
-    <p>Time: <span id="time"></span></p>
-  </div>
-
-  <h3>Recent Logs</h3>
-  <div id="log" class="log-box">No logs yet.</div>
-
-  <script>
-    async function fetchStatus() {
-      try {
-        const res = await fetch("http://192.168.1.23/status"); // your ESP32 IP
-        const data = await res.json();
-        document.getElementById("status").innerText = "Status: " + data.status;
-        document.getElementById("count").innerText = data.count;
-        document.getElementById("log").innerHTML = data.log;
-      } catch {
-        document.getElementById("status").innerText = "ESP32 Offline";
-      }
-    }
-
-    setInterval(() => {
-      fetchStatus();
-      document.getElementById("time").innerText = new Date().toLocaleTimeString();
-    }, 3000);
-
-    fetchStatus();
-  </script>
+  <h1>🚗 Smart Toll Gate Dashboard</h1>
+  <p>Live updates from Firebase</p>
+  <div id="log">Loading...</div>
 </body>
 </html>
