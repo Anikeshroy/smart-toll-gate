@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Toll Gate</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <h1>🚗 Smart Toll Gate</h1>
+
+  <div class="status-box">
+    <h2 id="status">Loading...</h2>
+    <p>Vehicle Count: <span id="count">0</span></p>
+    <p>Time: <span id="time"></span></p>
+  </div>
+
+  <h3>Recent Logs</h3>
+  <div id="log" class="log-box">No logs yet.</div>
+
+  <script>
+    async function fetchStatus() {
+      try {
+        const res = await fetch("http://192.168.1.120/status"); // your ESP32 IP
+        const data = await res.json();
+        document.getElementById("status").innerText = "Status: " + data.status;
+        document.getElementById("count").innerText = data.count;
+        document.getElementById("log").innerHTML = data.log;
+      } catch {
+        document.getElementById("status").innerText = "ESP32 Offline";
+      }
+    }
+
+    setInterval(() => {
+      fetchStatus();
+      document.getElementById("time").innerText = new Date().toLocaleTimeString();
+    }, 3000);
+
+    fetchStatus();
+  </script>
+</body>
+</html>
