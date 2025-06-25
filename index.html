@@ -19,7 +19,7 @@
   <script>
     async function fetchStatus() {
       try {
-        const res = await fetch("http://192.168.1.120/status"); // your ESP32 IP
+        const res = await fetch("http://192.168.1.23/status"); // your ESP32 IP
         const data = await res.json();
         document.getElementById("status").innerText = "Status: " + data.status;
         document.getElementById("count").innerText = data.count;
